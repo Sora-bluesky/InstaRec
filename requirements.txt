@@ -1,0 +1,11 @@
+customtkinter>=5.2.0
+mss
+opencv-python
+soundcard
+numpy
+imageio-ffmpeg
+pillow
+soundfile
+pyautogui
+pywinstyles
+keyboard
