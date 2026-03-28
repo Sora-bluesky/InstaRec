@@ -6,6 +6,7 @@ import customtkinter as ctk
 from state import StateMachine, AppState
 from config import AppConfig
 from ui.main_toolbar import MainToolbar
+from ui.selection_overlay import SelectionOverlay
 from utils.logger import setup_logging
 
 logger = logging.getLogger(__name__)
@@ -50,6 +51,7 @@ class InstaRecApp(ctk.CTk):
 
         sm.on_enter(AppState.SELECTING, self._enter_selecting)
         sm.on_enter(AppState.IDLE, self._enter_idle)
+        sm.on_enter(AppState.READY, self._enter_ready)
 
     def _enter_idle(self, old_state, new_state):
         """Return to idle - show toolbar, cleanup."""
@@ -61,10 +63,34 @@ class InstaRecApp(ctk.CTk):
     def _enter_selecting(self, old_state, new_state):
         """Start region selection overlay."""
         self.toolbar.set_enabled(False)
-        # TODO: Phase 2 - Launch SelectionOverlay
-        # For now, placeholder that returns to IDLE
-        logger.info("Entering SELECTING (placeholder - Phase 2)")
-        self.after(100, lambda: self.state_machine.transition(AppState.IDLE))
+        self.toolbar.withdraw()
+
+        self._overlay = SelectionOverlay(
+            master=self,
+            on_confirmed=self._on_selection_confirmed,
+            on_cancelled=self._on_selection_cancelled,
+        )
+        self._overlay.show()
+        logger.info("Entering SELECTING")
+
+    def _on_selection_confirmed(self, region):
+        """Called when user confirms a selection region."""
+        self._selected_region = region
+        self._overlay = None
+        logger.info(f"Selection confirmed: {region}")
+        self.state_machine.transition(AppState.READY)
+
+    def _on_selection_cancelled(self):
+        """Called when user cancels selection."""
+        self._overlay = None
+        logger.info("Selection cancelled")
+        self.state_machine.transition(AppState.IDLE)
+
+    def _enter_ready(self, old_state, new_state):
+        """Selection confirmed - show toolbar and wait for recording start."""
+        self.toolbar.set_enabled(True)
+        self.toolbar.deiconify()
+        logger.info(f"READY: region={self._selected_region}")
 
     def _on_new(self):
         """Handle 'New' button click."""
