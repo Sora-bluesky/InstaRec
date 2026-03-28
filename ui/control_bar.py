@@ -28,6 +28,9 @@ _ICON_MIC = "\uE720"
 _ICON_SPEAKER = "\uE767"
 _ICON_CLOSE = "\uE711"
 _ICON_DELETE = "\uE74D"
+_ICON_PAUSE = "\uE769"
+_ICON_PLAY = "\uE768"
+_ICON_SIZE = 15
 
 
 class _Timer:
@@ -176,13 +179,13 @@ class ControlBar(ctk.CTkToplevel):
         )
         self._rec_dot_img = rec_dot  # prevent GC
 
-        # --- Pause/Resume button (RECORDING/PAUSED) --- flat icon
+        # --- Pause/Resume button (RECORDING/PAUSED) --- MDL2 icon
         self._pause_btn = ctk.CTkButton(
-            inner, text="\u23f8", width=28, height=28,
+            inner, text=_ICON_PAUSE, width=28, height=28,
             corner_radius=14,
             fg_color="transparent", hover_color=Colors.SURFACE_HOVER,
             text_color=Colors.TEXT_PRIMARY,
-            font=(Fonts.FAMILY, 15),
+            font=(_ICON_FONT, _ICON_SIZE),
             command=self._handle_pause_resume,
         )
 
@@ -208,7 +211,7 @@ class ControlBar(ctk.CTkToplevel):
             inner, text=_ICON_MIC, width=28, height=28,
             corner_radius=14,
             fg_color="transparent", hover_color=Colors.SURFACE_HOVER,
-            font=(_ICON_FONT, 13),
+            font=(_ICON_FONT, _ICON_SIZE),
             command=self._handle_mic_toggle,
         )
 
@@ -217,7 +220,7 @@ class ControlBar(ctk.CTkToplevel):
             inner, text=_ICON_SPEAKER, width=28, height=28,
             corner_radius=14,
             fg_color="transparent", hover_color=Colors.SURFACE_HOVER,
-            font=(_ICON_FONT, 13),
+            font=(_ICON_FONT, _ICON_SIZE),
             command=self._handle_audio_toggle,
         )
 
@@ -226,8 +229,8 @@ class ControlBar(ctk.CTkToplevel):
             inner, text=_ICON_CLOSE, width=28, height=28,
             corner_radius=14,
             fg_color="transparent", hover_color=Colors.SURFACE_HOVER,
-            text_color=Colors.TEXT_SECONDARY,
-            font=(_ICON_FONT, 12),
+            text_color=Colors.TEXT_PRIMARY,
+            font=(_ICON_FONT, _ICON_SIZE),
             command=self._handle_discard,
         )
 
@@ -236,14 +239,14 @@ class ControlBar(ctk.CTkToplevel):
             inner, text=_ICON_DELETE, width=28, height=28,
             corner_radius=14,
             fg_color="transparent", hover_color=Colors.SURFACE_HOVER,
-            text_color=Colors.TEXT_SECONDARY,
-            font=(_ICON_FONT, 13),
+            text_color=Colors.TEXT_PRIMARY,
+            font=(_ICON_FONT, _ICON_SIZE),
             command=self._handle_discard,
         )
 
         self._update_toggle_visuals()
 
-    def set_mode(self, mode: str):
+    def set_mode(self, mode: str, start_timer: bool = True):
         """Switch bar layout: 'ready', 'recording', 'paused'."""
         self._mode = mode
 
@@ -271,7 +274,7 @@ class ControlBar(ctk.CTkToplevel):
             self._timer_label.configure(text="00:00:00")
 
         elif mode == "recording":
-            self._pause_btn.configure(text="\u23f8", command=self._handle_pause_resume)
+            self._pause_btn.configure(text=_ICON_PAUSE, command=self._handle_pause_resume)
             self._pause_btn.pack(side="left", padx=sp)
             self._stop_btn.pack(side="left", padx=sp)
             self._timer_label.configure(text_color=Colors.TEXT_PRIMARY)
@@ -284,14 +287,15 @@ class ControlBar(ctk.CTkToplevel):
             self._blink_visible = True
             self._timer_label.configure(text=self._timer.formatted())
 
-            if self._timer.elapsed() == 0:
-                self._timer.start()
-            else:
-                self._timer.resume()
-            self._start_tick()
+            if start_timer:
+                if self._timer.elapsed() == 0:
+                    self._timer.start()
+                else:
+                    self._timer.resume()
+                self._start_tick()
 
         elif mode == "paused":
-            self._pause_btn.configure(text="\u25b6", command=self._handle_pause_resume)
+            self._pause_btn.configure(text=_ICON_PLAY, command=self._handle_pause_resume)
             self._pause_btn.pack(side="left", padx=sp)
             self._stop_btn.pack(side="left", padx=sp)
             self._timer_label.configure(text_color=Colors.TEXT_PRIMARY)
