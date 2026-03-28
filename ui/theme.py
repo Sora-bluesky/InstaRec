@@ -19,6 +19,10 @@ class Colors:
     RED = "#FF3B30"
     RED_HOVER = "#FF6961"
 
+    # Start button (Windows accent blue)
+    ACCENT = "#0078D4"
+    ACCENT_HOVER = "#1A8AE0"
+
     # Overlay
     OVERLAY_DIM = "#000000"
 
@@ -38,8 +42,9 @@ class Colors:
 class Fonts:
     """Typography - clean, system font hierarchy."""
 
-    # Use Segoe UI on Windows (closest to SF Pro)
+    # Segoe UI for Latin, Yu Gothic UI for Japanese
     FAMILY = "Segoe UI"
+    FAMILY_JP = "Yu Gothic UI"
 
     # Size scale (Apple-style: clear hierarchy, generous)
     TITLE = 13
@@ -51,6 +56,7 @@ class Fonts:
 
 # Layout constants (generous spacing, Apple-style)
 TOOLBAR_HEIGHT = 40
+CONTROL_BAR_HEIGHT = 48
 TOOLBAR_PADDING = 6
 CORNER_RADIUS = 10
 BUTTON_SIZE = 28

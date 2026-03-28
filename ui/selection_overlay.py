@@ -41,11 +41,11 @@ class SelectionOverlay:
     def __init__(
         self,
         master: tk.Tk,
-        on_confirmed: Callable[[dict], None],
+        on_selection_drawn: Callable[[dict], None],
         on_cancelled: Callable[[], None],
     ):
         self._master = master
-        self._on_confirmed = on_confirmed
+        self._on_selection_drawn = on_selection_drawn
         self._on_cancelled = on_cancelled
 
         self._screen: dict = {}
@@ -71,6 +71,17 @@ class SelectionOverlay:
         self._screen = get_screen_metrics()
         logger.info(f"Selection overlay: screen={self._screen}")
         self._create_draw_overlay()
+
+    def get_region(self) -> Optional[dict]:
+        """Return current selection as {x, y, w, h}, or None."""
+        s = self._selection
+        if s is None:
+            return None
+        w = s["x2"] - s["x1"]
+        h = s["y2"] - s["y1"]
+        if w < MIN_SELECTION_SIZE or h < MIN_SELECTION_SIZE:
+            return None
+        return {"x": s["x1"], "y": s["y1"], "w": w, "h": h}
 
     def destroy(self):
         """Tear down all overlay windows."""
@@ -175,6 +186,11 @@ class SelectionOverlay:
         logger.info(f"Selection drawn: {self._selection}")
         self._transition_to_adjust()
 
+        # Notify app so control bar can appear
+        region = self.get_region()
+        if region and self._on_selection_drawn:
+            self._on_selection_drawn(region)
+
     def _transition_to_adjust(self):
         """Destroy draw overlay, create Phase B adjust windows."""
         if self._draw_overlay:
@@ -202,8 +218,6 @@ class SelectionOverlay:
             panel.bind("<B1-Motion>", self._dim_on_drag)
             panel.bind("<ButtonRelease-1>", self._dim_on_release)
             panel.bind("<Escape>", self._on_escape)
-            panel.bind("<Return>", self._on_confirm)
-            panel.bind("<Double-Button-1>", self._on_confirm)
 
             self._dim_panels.append(panel)
 
@@ -304,8 +318,6 @@ class SelectionOverlay:
         interact.bind("<ButtonRelease-1>", self._adjust_on_release)
         interact.bind("<Motion>", self._adjust_on_motion)
         interact.bind("<Escape>", self._on_escape)
-        interact.bind("<Return>", self._on_confirm)
-        interact.bind("<Double-Button-1>", self._on_confirm)
 
         self._interact_win = interact
 
@@ -572,23 +584,6 @@ class SelectionOverlay:
         self.destroy()
         if self._on_cancelled:
             self._on_cancelled()
-
-    def _on_confirm(self, event):
-        if self._selection is None:
-            return
-
-        s = self._selection
-        w = s["x2"] - s["x1"]
-        h = s["y2"] - s["y1"]
-
-        if w < MIN_SELECTION_SIZE or h < MIN_SELECTION_SIZE:
-            return
-
-        region = {"x": s["x1"], "y": s["y1"], "w": w, "h": h}
-        logger.info(f"Selection confirmed: {region}")
-        self.destroy()
-        if self._on_confirmed:
-            self._on_confirmed(region)
 
     # ------------------------------------------------------------------
     # Helpers
