@@ -10,9 +10,10 @@ Layout reference (from Windows 11 Snipping Tool):
 """
 
 import time
+import tkinter as tk
 import customtkinter as ctk
 from PIL import Image, ImageDraw
-from typing import Callable
+from typing import Callable, Optional
 import logging
 
 from ui.theme import Colors, Fonts
@@ -88,6 +89,7 @@ class ControlBar(ctk.CTkToplevel):
         on_discard: Callable,
         on_mic_toggle: Callable[[bool], None],
         on_audio_toggle: Callable[[bool], None],
+        on_mic_device_change: Optional[Callable[[Optional[str]], None]] = None,
     ):
         super().__init__(master)
 
@@ -100,6 +102,7 @@ class ControlBar(ctk.CTkToplevel):
         self._on_discard = on_discard
         self._on_mic_toggle = on_mic_toggle
         self._on_audio_toggle = on_audio_toggle
+        self._on_mic_device_change = on_mic_device_change
 
         self._timer = _Timer()
         self._tick_id = None
@@ -206,7 +209,7 @@ class ControlBar(ctk.CTkToplevel):
             text_color=Colors.TEXT_SECONDARY, width=65,
         )
 
-        # --- Mic toggle (MDL2 icon) ---
+        # --- Mic toggle (MDL2 icon, right-click for device selection) ---
         self._mic_btn = ctk.CTkButton(
             inner, text=_ICON_MIC, width=28, height=28,
             corner_radius=14,
@@ -214,6 +217,7 @@ class ControlBar(ctk.CTkToplevel):
             font=(_ICON_FONT, _ICON_SIZE),
             command=self._handle_mic_toggle,
         )
+        self._mic_btn.bind("<Button-3>", self._show_mic_menu)
 
         # --- Speaker toggle (MDL2 icon) ---
         self._audio_btn = ctk.CTkButton(
@@ -400,6 +404,49 @@ class ControlBar(ctk.CTkToplevel):
         self._update_toggle_visuals()
         if self._on_audio_toggle:
             self._on_audio_toggle(self._audio_on)
+
+    # ------------------------------------------------------------------
+    # Mic device selection
+    # ------------------------------------------------------------------
+
+    def _show_mic_menu(self, event=None):
+        """Show microphone device selection popup (right-click)."""
+        from core.audio_capture import list_microphones
+
+        devices = list_microphones()
+        if not devices:
+            return
+
+        menu = tk.Menu(
+            self, tearoff=0,
+            bg=Colors.SURFACE_HOVER, fg=Colors.TEXT_PRIMARY,
+            activebackground=Colors.SURFACE_PRESSED,
+            activeforeground=Colors.TEXT_PRIMARY,
+            relief="flat", borderwidth=1,
+            font=(Fonts.FAMILY_JP, 11),
+        )
+
+        menu.add_command(
+            label="\u65e2\u5b9a\u306e\u30de\u30a4\u30af",
+            command=lambda: self._select_mic_device(None),
+        )
+        menu.add_separator()
+
+        for dev in devices:
+            label = dev["name"][:40]
+            did = dev["id"]
+            menu.add_command(
+                label=label,
+                command=lambda d=did: self._select_mic_device(d),
+            )
+
+        x = self._mic_btn.winfo_rootx()
+        y = self._mic_btn.winfo_rooty() + self._mic_btn.winfo_height() + 4
+        menu.post(x, y)
+
+    def _select_mic_device(self, device_id: str | None):
+        if self._on_mic_device_change:
+            self._on_mic_device_change(device_id)
 
     # ------------------------------------------------------------------
     # Drag
