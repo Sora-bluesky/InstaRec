@@ -8,6 +8,7 @@ from config import AppConfig
 from ui.main_toolbar import MainToolbar
 from ui.selection_overlay import SelectionOverlay
 from ui.control_bar import ControlBar
+from ui.recording_overlay import CountdownOverlay, RecordingBorder
 from utils.logger import setup_logging
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,8 @@ class InstaRecApp(ctk.CTk):
         self._selected_region = None
         self._overlay = None
         self._control_bar = None
+        self._countdown_overlay = None
+        self._recording_border = None
 
         # Register state callbacks
         self._register_state_callbacks()
@@ -61,12 +64,12 @@ class InstaRecApp(ctk.CTk):
 
     def _enter_idle(self, old_state, new_state):
         """Return to idle - show toolbar, cleanup."""
-        if self._overlay:
-            self._overlay.destroy()
-            self._overlay = None
-        if self._control_bar:
-            self._control_bar.destroy()
-            self._control_bar = None
+        for attr in ("_countdown_overlay", "_recording_border",
+                     "_overlay", "_control_bar"):
+            obj = getattr(self, attr, None)
+            if obj:
+                obj.destroy()
+                setattr(self, attr, None)
 
         self.toolbar.set_enabled(True)
         self.toolbar.deiconify()
@@ -118,13 +121,45 @@ class InstaRecApp(ctk.CTk):
         logger.info(f"READY: region={self._selected_region}")
 
     def _enter_countdown(self, old_state, new_state):
-        """Countdown before recording. Phase 4 placeholder."""
-        self.after(100, lambda: self.state_machine.transition(AppState.RECORDING))
+        """Show 3→2→1 countdown, then transition to RECORDING."""
+        if self._control_bar:
+            self._control_bar.set_mode("recording", start_timer=False)
+
+        self._countdown_overlay = CountdownOverlay(
+            master=self,
+            region=self._selected_region,
+            seconds=self.config.countdown_seconds,
+            on_complete=self._on_countdown_complete,
+        )
+        self._countdown_overlay.start()
+
+        # Keep control bar above countdown overlay
+        if self._control_bar:
+            self._control_bar.lift()
+        logger.info("COUNTDOWN started")
+
+    def _on_countdown_complete(self):
+        """Countdown finished. Start recording."""
+        if self._countdown_overlay:
+            self._countdown_overlay.destroy()
+            self._countdown_overlay = None
+        self.state_machine.transition(AppState.RECORDING)
 
     def _enter_recording(self, old_state, new_state):
         """Recording started or resumed."""
         if self._control_bar:
             self._control_bar.set_mode("recording")
+
+        if not self._recording_border:
+            self._recording_border = RecordingBorder(
+                master=self,
+                region=self._selected_region,
+            )
+        self._recording_border.show()
+
+        # Keep control bar above recording border
+        if self._control_bar:
+            self._control_bar.lift()
         logger.info("RECORDING")
 
     def _enter_paused(self, old_state, new_state):

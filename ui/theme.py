@@ -26,6 +26,10 @@ class Colors:
     # Overlay
     OVERLAY_DIM = "#000000"
 
+    # Countdown
+    COUNTDOWN_BADGE_BG = "#1E1E1E"
+    COUNTDOWN_BORDER = "#636366"
+
     # Selection
     SELECTION_BORDER = "#FFFFFF"
     RECORDING_BORDER = "#FF3B30"
