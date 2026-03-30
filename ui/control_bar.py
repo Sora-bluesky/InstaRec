@@ -18,6 +18,7 @@ import logging
 
 from ui.theme import Colors, Fonts
 from config import AppConfig
+from i18n import t
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +118,7 @@ class ControlBar(ctk.CTkToplevel):
         self._drag_y = 0
 
         # Window setup
-        self.title("InstaRec Control")
+        self.title(t("control_bar.title"))
         self.overrideredirect(True)
         self.attributes("-topmost", True)
         self.configure(fg_color=Colors.SURFACE)
@@ -172,7 +173,7 @@ class ControlBar(ctk.CTkToplevel):
         # --- Start button (READY) --- Windows blue pill with circle icon
         rec_dot = self._make_circle_icon(10, "#FFFFFF")
         self._start_btn = ctk.CTkButton(
-            inner, text="\u30b9\u30bf\u30fc\u30c8",
+            inner, text=t("control.start"),
             image=rec_dot, compound="left",
             width=120, height=30, corner_radius=15,
             fg_color=Colors.ACCENT, hover_color=Colors.ACCENT_HOVER,
@@ -427,7 +428,7 @@ class ControlBar(ctk.CTkToplevel):
         )
 
         menu.add_command(
-            label="\u65e2\u5b9a\u306e\u30de\u30a4\u30af",
+            label=t("mic.default_device"),
             command=lambda: self._select_mic_device(None),
         )
         menu.add_separator()

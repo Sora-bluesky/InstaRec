@@ -1,0 +1,9 @@
+{
+  "app.title": "InstaRec",
+  "toolbar.menu_tooltip": "Menu",
+  "menu.quit": "Exit",
+  "menu.language": "Language",
+  "control_bar.title": "InstaRec Control",
+  "control.start": "Start",
+  "mic.default_device": "Default Microphone"
+}

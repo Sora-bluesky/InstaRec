@@ -11,6 +11,7 @@ from ui.selection_overlay import SelectionOverlay
 from ui.control_bar import ControlBar
 from ui.recording_overlay import CountdownOverlay, RecordingBorder
 from utils.logger import setup_logging
+import i18n
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,13 @@ class InstaRecApp(ctk.CTk):
 
         # Config & State
         self.config = AppConfig.load()
+
+        # Initialize i18n
+        if not self.config.language:
+            self.config.language = i18n.get_system_language()
+            self.config.save()
+        i18n.init(self.config.language)
+
         self.state_machine = StateMachine()
 
         # Recording state
@@ -51,6 +59,7 @@ class InstaRecApp(ctk.CTk):
             self,
             on_new=self._on_new,
             on_quit=self._on_quit,
+            on_language_change=self._on_language_change,
         )
 
         logger.info("InstaRec ready (IDLE)")
@@ -264,6 +273,21 @@ class InstaRecApp(ctk.CTk):
         # For now, transition to IDLE immediately
         logger.info("PREVIEW (placeholder - Phase 6)")
         self.after(100, lambda: self.state_machine.transition(AppState.IDLE))
+
+    def _on_language_change(self, lang_code: str):
+        """Handle language change from toolbar menu."""
+        self.config.language = lang_code
+        self.config.save()
+        i18n.init(lang_code)
+        # Rebuild toolbar with new language
+        self.toolbar.destroy()
+        self.toolbar = MainToolbar(
+            self,
+            on_new=self._on_new,
+            on_quit=self._on_quit,
+            on_language_change=self._on_language_change,
+        )
+        logger.info(f"Language changed to: {lang_code}")
 
     def _on_new(self):
         """Handle 'New' button click."""
