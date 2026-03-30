@@ -22,6 +22,7 @@ class AppConfig:
     hotkey: str = "win+shift+r"
     cursor_style: str = "target"  # "target", "default", "none"
     countdown_seconds: int = 3
+    language: str = ""  # Empty = auto-detect on first run
 
     def __post_init__(self):
         if not self.save_directory:

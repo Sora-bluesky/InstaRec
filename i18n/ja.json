@@ -1,0 +1,9 @@
+{
+  "app.title": "InstaRec",
+  "toolbar.menu_tooltip": "メニュー",
+  "menu.quit": "終了",
+  "menu.language": "言語",
+  "control_bar.title": "InstaRec Control",
+  "control.start": "スタート",
+  "mic.default_device": "既定のマイク"
+}

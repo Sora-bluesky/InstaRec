@@ -11,6 +11,7 @@ import tkinter as tk
 import customtkinter as ctk
 from ui.theme import Colors, Fonts, TOOLBAR_HEIGHT, TOOLBAR_PADDING, CORNER_RADIUS
 from ui.widgets import IconButton
+from i18n import t, available_languages, current_language
 import logging
 
 logger = logging.getLogger(__name__)
@@ -27,14 +28,15 @@ class MainToolbar(ctk.CTkToplevel):
     That's it. Two buttons. Maximum clarity.
     """
 
-    def __init__(self, master, on_new=None, on_quit=None):
+    def __init__(self, master, on_new=None, on_quit=None, on_language_change=None):
         super().__init__(master)
 
         self._on_new = on_new
         self._on_quit = on_quit
+        self._on_language_change = on_language_change
 
         # Window: frameless, always-on-top, dark surface
-        self.title("InstaRec")
+        self.title(t("app.title"))
         self.overrideredirect(True)
         self.attributes("-topmost", True)
         self.configure(fg_color=Colors.SURFACE)
@@ -97,7 +99,7 @@ class MainToolbar(ctk.CTkToplevel):
             inner,
             text="⋯",
             font=(Fonts.FAMILY, 16),
-            tooltip_text="メニュー",
+            tooltip_text=t("toolbar.menu_tooltip"),
             size=28,
             corner_radius=6,
             command=self._show_menu,
@@ -112,11 +114,29 @@ class MainToolbar(ctk.CTkToplevel):
         menu = tk.Menu(self, tearoff=0, bg="#2A2A2A", fg="white",
                        activebackground="#3A3A3A", activeforeground="white",
                        relief="flat", borderwidth=0)
-        menu.add_command(label="終了", command=self._handle_quit)
+        # Language submenu
+        langs = available_languages()
+        cur = current_language()
+        lang_menu = tk.Menu(menu, tearoff=0, bg="#2A2A2A", fg="white",
+                            activebackground="#3A3A3A", activeforeground="white",
+                            relief="flat", borderwidth=0)
+        for code, name in langs.items():
+            prefix = "  " if code != cur else "  "
+            lang_menu.add_command(
+                label=prefix + name,
+                command=lambda c=code: self._change_language(c),
+            )
+        menu.add_cascade(label=t("menu.language"), menu=lang_menu)
+        menu.add_separator()
+        menu.add_command(label=t("menu.quit"), command=self._handle_quit)
 
         x = self._menu_btn.winfo_rootx()
         y = self._menu_btn.winfo_rooty() + self._menu_btn.winfo_height() + 4
         menu.post(x, y)
+
+    def _change_language(self, lang_code: str):
+        if self._on_language_change:
+            self._on_language_change(lang_code)
 
     def _handle_quit(self):
         if self._on_quit:
