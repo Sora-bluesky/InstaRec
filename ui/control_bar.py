@@ -18,7 +18,7 @@ import logging
 
 from ui.theme import Colors, Fonts
 from config import AppConfig
-from i18n import t
+from i18n import t, available_languages, current_language
 
 logger = logging.getLogger(__name__)
 
@@ -76,26 +76,38 @@ class _Timer:
 
 
 class ControlBar(ctk.CTkToplevel):
-    """Floating control bar for recording operations."""
+    """Floating control bar — the primary UI for InstaRec.
+
+    Modes:
+        idle      — [● Record]  🎤  🖥  ⋯
+        ready     — [● Start]   00:00:00  🎤  🖥  ✕
+        recording — ⏸  🔴  00:00:02  🎤  🖥  🗑
+        paused    — ▶  🔴  00:01:23  🎤  🖥  🗑
+    """
 
     def __init__(
         self,
         master,
-        region: dict,
         config: AppConfig,
-        on_start: Callable,
-        on_stop: Callable,
-        on_pause: Callable,
-        on_resume: Callable,
-        on_discard: Callable,
-        on_mic_toggle: Callable[[bool], None],
-        on_audio_toggle: Callable[[bool], None],
+        on_new: Optional[Callable] = None,
+        on_start: Optional[Callable] = None,
+        on_stop: Optional[Callable] = None,
+        on_pause: Optional[Callable] = None,
+        on_resume: Optional[Callable] = None,
+        on_discard: Optional[Callable] = None,
+        on_mic_toggle: Optional[Callable[[bool], None]] = None,
+        on_audio_toggle: Optional[Callable[[bool], None]] = None,
         on_mic_device_change: Optional[Callable[[Optional[str]], None]] = None,
+        on_quit: Optional[Callable] = None,
+        on_settings: Optional[Callable] = None,
+        on_language_change: Optional[Callable[[str], None]] = None,
+        region: Optional[dict] = None,
     ):
         super().__init__(master)
 
         self._region = region
         self._config = config
+        self._on_new = on_new
         self._on_start = on_start
         self._on_stop = on_stop
         self._on_pause = on_pause
@@ -104,12 +116,15 @@ class ControlBar(ctk.CTkToplevel):
         self._on_mic_toggle = on_mic_toggle
         self._on_audio_toggle = on_audio_toggle
         self._on_mic_device_change = on_mic_device_change
+        self._on_quit = on_quit
+        self._on_settings = on_settings
+        self._on_language_change = on_language_change
 
         self._timer = _Timer()
         self._tick_id = None
         self._blink_id = None
         self._blink_visible = True
-        self._mode = "ready"
+        self._mode = "idle"
         self._mic_on = config.microphone
         self._audio_on = config.system_audio
 
@@ -136,15 +151,28 @@ class ControlBar(ctk.CTkToplevel):
 
         self._build_ui()
         self._position_bar()
-        self.set_mode("ready")
+        self.set_mode("idle" if region is None else "ready")
 
         logger.info("ControlBar created")
 
+    def update_region(self, region: dict):
+        """Update the selection region and reposition."""
+        self._region = region
+        self._position_bar()
+
     def _position_bar(self):
-        """Position the bar centered above the selection region."""
+        """Position the bar. If no region, center at top of screen."""
         r = self._region
         bar_w = _BAR_WIDTH
         bar_h = _BAR_HEIGHT
+
+        if r is None:
+            # Idle mode: top-center of screen
+            screen_w = self.winfo_screenwidth()
+            bar_x = (screen_w - bar_w) // 2
+            bar_y = 50
+            self.geometry(f"{bar_w}x{bar_h}+{bar_x}+{bar_y}")
+            return
 
         bar_x = r["x"] + (r["w"] - bar_w) // 2
         bar_y = r["y"] - bar_h - 8
@@ -249,13 +277,35 @@ class ControlBar(ctk.CTkToplevel):
             command=self._handle_discard,
         )
 
+        # --- Record button (IDLE) --- red pill for starting new recording
+        rec_idle_dot = self._make_circle_icon(10, "#FFFFFF")
+        self._rec_btn = ctk.CTkButton(
+            inner, text="",
+            image=rec_idle_dot, compound="center",
+            width=24, height=24, corner_radius=12,
+            fg_color=Colors.RED, hover_color=Colors.RED_HOVER,
+            command=self._handle_new,
+        )
+        self._rec_idle_dot = rec_idle_dot
+
+        # --- Menu button (IDLE) ---
+        self._menu_btn = ctk.CTkButton(
+            inner, text="\u22ef",
+            font=(Fonts.FAMILY, 16),
+            width=28, height=28, corner_radius=6,
+            fg_color="transparent", hover_color=Colors.SURFACE_HOVER,
+            text_color=Colors.TEXT_PRIMARY,
+            command=self._show_main_menu,
+        )
+
         self._update_toggle_visuals()
 
     def set_mode(self, mode: str, start_timer: bool = True):
-        """Switch bar layout: 'ready', 'recording', 'paused'."""
+        """Switch bar layout: 'idle', 'ready', 'recording', 'paused'."""
         self._mode = mode
 
         for w in [
+            self._rec_btn, self._menu_btn,
             self._start_btn, self._pause_btn, self._stop_btn,
             self._timer_label,
             self._mic_btn, self._audio_btn,
@@ -265,7 +315,15 @@ class ControlBar(ctk.CTkToplevel):
 
         sp = 4  # spacing between items
 
-        if mode == "ready":
+        if mode == "idle":
+            self._rec_btn.pack(side="left", padx=(0, 8))
+            self._mic_btn.pack(side="left", padx=sp)
+            self._audio_btn.pack(side="left", padx=sp)
+            self._menu_btn.pack(side="left", padx=(8, 0))
+            self._stop_tick()
+            self._stop_blink()
+
+        elif mode == "ready":
             self._start_btn.pack(side="left", padx=(0, sp * 2))
             self._timer_label.configure(text_color=Colors.TEXT_SECONDARY)
             self._timer_label.pack(side="left", padx=(0, sp * 2))
@@ -376,6 +434,10 @@ class ControlBar(ctk.CTkToplevel):
     # Button handlers
     # ------------------------------------------------------------------
 
+    def _handle_new(self):
+        if self._on_new:
+            self._on_new()
+
     def _handle_start(self):
         if self._on_start:
             self._on_start()
@@ -405,6 +467,49 @@ class ControlBar(ctk.CTkToplevel):
         self._update_toggle_visuals()
         if self._on_audio_toggle:
             self._on_audio_toggle(self._audio_on)
+
+    # ------------------------------------------------------------------
+    # Main menu (idle mode)
+    # ------------------------------------------------------------------
+
+    def _show_main_menu(self):
+        """Show the main menu (settings, language, quit)."""
+        menu = tk.Menu(self, tearoff=0, bg="#2A2A2A", fg="white",
+                       activebackground="#3A3A3A", activeforeground="white",
+                       relief="flat", borderwidth=0)
+
+        # Language submenu
+        langs = available_languages()
+        cur = current_language()
+        lang_menu = tk.Menu(menu, tearoff=0, bg="#2A2A2A", fg="white",
+                            activebackground="#3A3A3A", activeforeground="white",
+                            relief="flat", borderwidth=0)
+        for code, name in langs.items():
+            prefix = "\u2713 " if code == cur else "    "
+            lang_menu.add_command(
+                label=prefix + name,
+                command=lambda c=code: self._change_language(c),
+            )
+        menu.add_cascade(label=t("menu.language"), menu=lang_menu)
+        menu.add_command(label=t("menu.settings"), command=self._handle_settings)
+        menu.add_separator()
+        menu.add_command(label=t("menu.quit"), command=self._handle_quit)
+
+        x = self._menu_btn.winfo_rootx()
+        y = self._menu_btn.winfo_rooty() + self._menu_btn.winfo_height() + 4
+        menu.post(x, y)
+
+    def _change_language(self, lang_code: str):
+        if self._on_language_change:
+            self._on_language_change(lang_code)
+
+    def _handle_settings(self):
+        if self._on_settings:
+            self._on_settings()
+
+    def _handle_quit(self):
+        if self._on_quit:
+            self._on_quit()
 
     # ------------------------------------------------------------------
     # Mic device selection
@@ -467,6 +572,13 @@ class ControlBar(ctk.CTkToplevel):
     # ------------------------------------------------------------------
     # Cleanup
     # ------------------------------------------------------------------
+
+    def set_enabled(self, enabled: bool):
+        """Enable/disable the record button (idle mode)."""
+        self._rec_btn.configure(
+            state="normal" if enabled else "disabled",
+            fg_color=Colors.RED if enabled else Colors.TEXT_TERTIARY,
+        )
 
     def destroy(self):
         self._stop_tick()

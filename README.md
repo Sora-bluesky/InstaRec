@@ -54,12 +54,16 @@ pyinstaller InstaRec.spec
 
 ## Usage
 
-1. Launch InstaRec. A small toolbar appears at the top of the screen.
+1. Launch InstaRec. A control bar appears at the top of the screen.
 2. Click the red record button to start selecting a region.
 3. Drag to select the area you want to record.
 4. Click **Start** to begin recording (after a 3-second countdown).
 5. Use the control bar to pause, resume, or stop.
 6. After stopping, the preview window opens for playback and export.
+
+## Update
+
+Download the latest installer from [Releases](https://github.com/Sora-bluesky/InstaRec/releases) and run it. The installer will automatically replace the previous version. Your settings are preserved.
 
 ## License
 
@@ -123,12 +127,16 @@ pyinstaller InstaRec.spec
 
 ## 使い方
 
-1. InstaRec を起動すると、画面上部に小さなツールバーが表示されます。
+1. InstaRec を起動すると、画面上部にコントロールバーが表示されます。
 2. 赤い録画ボタンをクリックして範囲選択を開始します。
 3. ドラッグして録画したい範囲を選択します。
 4. **スタート** をクリックすると録画が始まります（3 秒のカウントダウン後）。
 5. コントロールバーで一時停止、再開、停止ができます。
 6. 停止後、プレビューウィンドウが開き、再生やエクスポートができます。
+
+## アップデート
+
+[Releases](https://github.com/Sora-bluesky/InstaRec/releases) から最新のインストーラーをダウンロードして実行してください。前のバージョンは自動的に置き換えられます。設定は保持されます。
 
 ## ライセンス
 

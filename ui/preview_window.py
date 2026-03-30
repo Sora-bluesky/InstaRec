@@ -271,7 +271,6 @@ class PreviewWindow(ctk.CTkToplevel):
             return
 
         ff_opts = {
-            "paused": True,
             "volume": self._volume,
         }
         try:
@@ -280,10 +279,11 @@ class PreviewWindow(ctk.CTkToplevel):
             logger.error(f"Failed to open video: {e}")
             self._handle_close()
             return
+        # Start unpaused to allow frame decoding, pause after first frame
         self.after(500, self._init_metadata)
 
-    def _init_metadata(self):
-        """Read duration and show first frame."""
+    def _init_metadata(self, retries: int = 10):
+        """Read duration and capture first frame, then pause."""
         if not self._player:
             return
         meta = self._player.get_metadata()
@@ -292,7 +292,23 @@ class PreviewWindow(ctk.CTkToplevel):
             self._duration = dur
             self._trim_end = dur
             self._trim_end_label.configure(text=self._fmt_time(dur))
-        self._show_frame()
+
+        # Grab first frame (player started unpaused)
+        frame, val = self._player.get_frame()
+        if frame is not None:
+            image_data, pts = frame
+            self._position = pts
+            self._display_frame(image_data)
+            self._update_seek_bar()
+            self._update_time_label()
+            self._player.set_pause(True)
+            self._playing = False
+            self._update_play_button()
+        elif retries > 0:
+            self.after(100, lambda: self._init_metadata(retries - 1))
+        else:
+            self._player.set_pause(True)
+            self._playing = False
 
     def _start_poll(self):
         if self._poll_id:
@@ -322,10 +338,15 @@ class PreviewWindow(ctk.CTkToplevel):
         delay = max(8, int(val * 1000)) if isinstance(val, float) else 33
         self._poll_id = self.after(delay, self._do_poll)
 
-    def _show_frame(self, retries: int = 5):
-        """Display a single frame (for paused/seek)."""
+    def _show_frame(self, retries: int = 10):
+        """Display a single frame (for paused/seek).
+
+        Briefly unpauses to allow frame decoding, then re-pauses.
+        """
         if not self._player or retries <= 0:
             return
+        # Unpause briefly to force frame decode
+        self._player.set_pause(False)
         frame, val = self._player.get_frame()
         if frame is not None:
             image_data, pts = frame
@@ -333,6 +354,8 @@ class PreviewWindow(ctk.CTkToplevel):
             self._display_frame(image_data)
             self._update_seek_bar()
             self._update_time_label()
+            if not self._playing:
+                self._player.set_pause(True)
         else:
             self.after(50, lambda: self._show_frame(retries - 1))
 
