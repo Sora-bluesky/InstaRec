@@ -28,12 +28,14 @@ class MainToolbar(ctk.CTkToplevel):
     That's it. Two buttons. Maximum clarity.
     """
 
-    def __init__(self, master, on_new=None, on_quit=None, on_language_change=None):
+    def __init__(self, master, on_new=None, on_quit=None,
+                 on_language_change=None, on_settings=None):
         super().__init__(master)
 
         self._on_new = on_new
         self._on_quit = on_quit
         self._on_language_change = on_language_change
+        self._on_settings = on_settings
 
         # Window: frameless, always-on-top, dark surface
         self.title(t("app.title"))
@@ -127,12 +129,17 @@ class MainToolbar(ctk.CTkToplevel):
                 command=lambda c=code: self._change_language(c),
             )
         menu.add_cascade(label=t("menu.language"), menu=lang_menu)
+        menu.add_command(label=t("menu.settings"), command=self._handle_settings)
         menu.add_separator()
         menu.add_command(label=t("menu.quit"), command=self._handle_quit)
 
         x = self._menu_btn.winfo_rootx()
         y = self._menu_btn.winfo_rooty() + self._menu_btn.winfo_height() + 4
         menu.post(x, y)
+
+    def _handle_settings(self):
+        if self._on_settings:
+            self._on_settings()
 
     def _change_language(self, lang_code: str):
         if self._on_language_change:

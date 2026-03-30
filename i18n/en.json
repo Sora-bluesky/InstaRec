@@ -24,5 +24,21 @@
   "gif.estimated_size": "Estimated size",
   "gif.exporting": "Exporting GIF...",
   "gif.cancel": "Cancel",
-  "gif.export": "Export"
+  "gif.export": "Export",
+  "menu.settings": "Settings",
+  "settings.title": "Settings",
+  "settings.recording": "RECORDING",
+  "settings.save_location": "Save Location",
+  "settings.output_format": "Output Format",
+  "settings.frame_rate": "Frame Rate",
+  "settings.countdown": "Countdown",
+  "settings.seconds": "seconds",
+  "settings.audio": "AUDIO",
+  "settings.system_audio": "System Audio",
+  "settings.microphone": "Microphone",
+  "settings.behavior": "BEHAVIOR",
+  "settings.auto_copy": "Auto-copy to Clipboard",
+  "settings.auto_save": "Auto-save",
+  "settings.hotkey": "Hotkey",
+  "settings.browse": "Browse..."
 }

@@ -22,6 +22,8 @@ class AppConfig:
     hotkey: str = "win+shift+r"
     cursor_style: str = "target"  # "target", "default", "none"
     countdown_seconds: int = 3
+    auto_copy: bool = False
+    auto_save: bool = False
     language: str = ""  # Empty = auto-detect on first run
 
     def __post_init__(self):
