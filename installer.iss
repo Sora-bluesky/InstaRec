@@ -1,13 +1,13 @@
 [Setup]
 AppName=InstaRec
-AppVersion=0.3.0
+AppVersion=0.3.1
 AppPublisher=Sora
 AppPublisherURL=https://github.com/Sora-bluesky/InstaRec
 DefaultDirName={autopf}\InstaRec
 DefaultGroupName=InstaRec
 UninstallDisplayIcon={app}\InstaRec.exe
 OutputDir=installer_output
-OutputBaseFilename=InstaRec-Setup-0.3.0
+OutputBaseFilename=InstaRec-Setup-0.3.1
 Compression=lzma2
 SolidCompression=yes
 SetupIconFile=icon.ico
@@ -30,4 +30,5 @@ Name: "{autodesktop}\InstaRec"; Filename: "{app}\InstaRec.exe"; Tasks: desktopic
 Name: "desktopicon"; Description: "Create a desktop shortcut"; GroupDescription: "Additional options:"
 
 [Run]
+Filename: "ie4uinit.exe"; Parameters: "-show"; Flags: runhidden nowait; StatusMsg: "Refreshing icons..."
 Filename: "{app}\InstaRec.exe"; Description: "Launch InstaRec"; Flags: nowait postinstall skipifsilent

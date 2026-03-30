@@ -32,6 +32,7 @@ class InstaRecApp(ctk.CTk):
 
         # Hide root window - ControlBar is the visible UI
         self.withdraw()
+        self.protocol("WM_DELETE_WINDOW", self._on_quit)
 
         # Config & State
         self.config = AppConfig.load()
