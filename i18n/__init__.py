@@ -32,8 +32,12 @@ def init(lang: str = "en") -> None:
         path = os.path.join(_DATA_DIR, "en.json")
         lang = "en"
 
-    with open(path, "r", encoding="utf-8") as f:
-        _strings = json.load(f)
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            _strings = json.load(f)
+    except (OSError, json.JSONDecodeError) as e:
+        logger.error(f"Failed to load translation {path}: {e}")
+        _strings = {}
 
     _current_lang = lang
     logger.info(f"i18n initialized: {lang}")

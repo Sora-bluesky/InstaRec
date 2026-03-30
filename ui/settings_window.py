@@ -281,12 +281,18 @@ class SettingsWindow(ctk.CTkToplevel):
         self._save()
 
     def _on_fps_change(self, value):
-        fps = int(value.split()[0])
+        try:
+            fps = int(value.split()[0])
+        except (ValueError, IndexError):
+            fps = 30
         self._config.fps = fps
         self._save()
 
     def _on_countdown_change(self, value):
-        seconds = int(value.split()[0])
+        try:
+            seconds = int(value.split()[0])
+        except (ValueError, IndexError):
+            seconds = 3
         self._config.countdown_seconds = seconds
         self._save()
 

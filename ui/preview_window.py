@@ -274,7 +274,12 @@ class PreviewWindow(ctk.CTkToplevel):
             "paused": True,
             "volume": self._volume,
         }
-        self._player = MediaPlayer(self._video_path, ff_opts=ff_opts)
+        try:
+            self._player = MediaPlayer(self._video_path, ff_opts=ff_opts)
+        except Exception as e:
+            logger.error(f"Failed to open video: {e}")
+            self._handle_close()
+            return
         self.after(500, self._init_metadata)
 
     def _init_metadata(self):
@@ -317,23 +322,19 @@ class PreviewWindow(ctk.CTkToplevel):
         delay = max(8, int(val * 1000)) if isinstance(val, float) else 33
         self._poll_id = self.after(delay, self._do_poll)
 
-    def _show_frame(self):
+    def _show_frame(self, retries: int = 5):
         """Display a single frame (for paused/seek)."""
-        if not self._player:
+        if not self._player or retries <= 0:
             return
-        # Poll a few times to get an actual frame
-        for _ in range(5):
-            frame, val = self._player.get_frame()
-            if frame is not None:
-                image_data, pts = frame
-                self._position = pts
-                self._display_frame(image_data)
-                self._update_seek_bar()
-                self._update_time_label()
-                return
-            self.update_idletasks()
-            import time
-            time.sleep(0.05)
+        frame, val = self._player.get_frame()
+        if frame is not None:
+            image_data, pts = frame
+            self._position = pts
+            self._display_frame(image_data)
+            self._update_seek_bar()
+            self._update_time_label()
+        else:
+            self.after(50, lambda: self._show_frame(retries - 1))
 
     def _display_frame(self, image_data):
         """Convert ffpyplayer frame → PIL → Canvas."""
@@ -511,10 +512,12 @@ class PreviewWindow(ctk.CTkToplevel):
                 "-c", "copy",
                 out,
             ]
-            threading.Thread(
-                target=lambda: subprocess.run(cmd, capture_output=True),
-                daemon=True,
-            ).start()
+            def _run_trim():
+                try:
+                    subprocess.run(cmd, capture_output=True, timeout=120)
+                except Exception as e:
+                    logger.error(f"Trim export failed: {e}")
+            threading.Thread(target=_run_trim, daemon=True).start()
         else:
             # No trim — file already saved at _video_path
             logger.info(f"Recording already saved: {self._video_path}")
