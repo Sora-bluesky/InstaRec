@@ -12,6 +12,7 @@ from ui.selection_overlay import SelectionOverlay
 from ui.control_bar import ControlBar
 from ui.recording_overlay import CountdownOverlay, RecordingBorder
 from ui.preview_window import PreviewWindow
+from ui.settings_window import SettingsWindow
 from utils.logger import setup_logging
 import i18n
 
@@ -63,6 +64,7 @@ class InstaRecApp(ctk.CTk):
             on_new=self._on_new,
             on_quit=self._on_quit,
             on_language_change=self._on_language_change,
+            on_settings=self._on_settings,
         )
 
         # Global hotkey
@@ -303,8 +305,14 @@ class InstaRecApp(ctk.CTk):
             on_new=self._on_new,
             on_quit=self._on_quit,
             on_language_change=self._on_language_change,
+            on_settings=self._on_settings,
         )
         logger.info(f"Language changed to: {lang_code}")
+
+    def _on_settings(self):
+        """Open settings window."""
+        if self.state_machine.is_state(AppState.IDLE):
+            SettingsWindow(self, self.config)
 
     def _setup_hotkey(self):
         """Register global hotkey for recording."""

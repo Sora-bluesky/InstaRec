@@ -24,5 +24,21 @@
   "gif.estimated_size": "推定サイズ",
   "gif.exporting": "GIF出力中...",
   "gif.cancel": "キャンセル",
-  "gif.export": "出力"
+  "gif.export": "出力",
+  "menu.settings": "設定",
+  "settings.title": "設定",
+  "settings.recording": "録画",
+  "settings.save_location": "保存先",
+  "settings.output_format": "出力形式",
+  "settings.frame_rate": "フレームレート",
+  "settings.countdown": "カウントダウン",
+  "settings.seconds": "秒",
+  "settings.audio": "オーディオ",
+  "settings.system_audio": "システム音声",
+  "settings.microphone": "マイクロフォン",
+  "settings.behavior": "動作",
+  "settings.auto_copy": "自動コピー",
+  "settings.auto_save": "自動保存",
+  "settings.hotkey": "ショートカットキー",
+  "settings.browse": "参照..."
 }
