@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 _BAR_WIDTH = 340
 _BAR_HEIGHT = 42
-_BAR_RADIUS = 14  # Moderately rounded — not pill, not sharp
+_BAR_RADIUS = 8  # Subtle rounded corners
 _ICON_FONT = "Segoe MDL2 Assets"
 _ICON_MIC = "\uE720"
 _ICON_SPEAKER = "\uE767"
