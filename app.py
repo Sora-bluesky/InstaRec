@@ -137,9 +137,20 @@ class InstaRecApp(ctk.CTk):
         self._control_bar.update_region(region)
         self._control_bar.set_mode("ready")
         self._control_bar.deiconify()
-        self._control_bar.lift()
-        self._control_bar.focus_force()
+        # Delay lift to ensure bar is above all overlay windows
+        self._control_bar.after(50, self._ensure_bar_on_top)
         logger.info(f"Selection drawn: {region}")
+
+    def _ensure_bar_on_top(self):
+        """Force control bar above all overlay windows."""
+        if self._control_bar:
+            try:
+                self._control_bar.attributes("-topmost", False)
+                self._control_bar.attributes("-topmost", True)
+                self._control_bar.lift()
+                self._control_bar.focus_force()
+            except Exception:
+                pass
 
     def _on_selection_cancelled(self):
         """Called when user presses Escape."""

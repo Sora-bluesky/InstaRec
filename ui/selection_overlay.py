@@ -255,10 +255,11 @@ class SelectionOverlay:
     def _set_panel_geom(self, index: int, x: int, y: int, w: int, h: int):
         panel = self._dim_panels[index]
         if w <= 0 or h <= 0:
-            panel.withdraw()
+            # Move offscreen instead of withdraw (avoids flicker)
+            panel.geometry(f"1x1+-10+-10")
         else:
-            panel.deiconify()
             panel.geometry(f"{w}x{h}+{x}+{y}")
+            panel.deiconify()
 
     def _create_adjust_overlays(self):
         """Create the border overlay and interaction panel over the selection.
