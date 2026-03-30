@@ -1,22 +1,38 @@
 # InstaRec
 
-Screen recording tool for Windows 10 with a minimal, Apple HIG-inspired UI.
+A lightweight screen recording tool for Windows 10, built with a minimal Apple HIG-inspired UI.
+
+Windows 11 has a built-in screen recording feature via Snipping Tool, but Windows 10 does not. InstaRec fills that gap with a simple, focused recording experience.
 
 ## Features
 
-- Region-based screen recording with resizable selection
-- System audio and microphone capture
-- 3-second countdown before recording
-- Pause / resume recording
-- Recording preview with seek bar and volume control
-- MP4 and GIF export with quality settings
-- Global hotkey (Win+Shift+R)
-- English / Japanese UI
+**Recording**
+
+- Region-based screen capture with resizable selection area
+- Snipping Tool-style selection handles (corner ticks and edge ticks)
+- 3-second countdown before recording starts
+- Pause and resume recording
+- System audio and microphone capture (with device selection)
+
+**Preview & Export**
+
+- Built-in video preview with playback controls
+- Seek bar, volume control, and trim (start/end)
+- Export as MP4 or GIF (with quality and frame rate options)
+- Save, copy path to clipboard, or open in Explorer
+
+**Usability**
+
+- Global hotkey: `Win+Shift+R` to start/stop recording
+- English / Japanese UI (switchable from toolbar menu)
+- Compact floating toolbar that stays out of the way
+- Settings panel for recording, audio, and behavior preferences
 
 ## Requirements
 
 - Windows 10
 - Python 3.10+
+- FFmpeg (bundled via `imageio-ffmpeg`)
 
 ## Quick Start
 
@@ -24,6 +40,24 @@ Screen recording tool for Windows 10 with a minimal, Apple HIG-inspired UI.
 pip install -r requirements.txt
 python main.py
 ```
+
+## Build
+
+```bash
+pip install pyinstaller
+pyinstaller InstaRec.spec
+```
+
+The standalone executable will be created in `dist/InstaRec.exe`.
+
+## Usage
+
+1. Launch InstaRec. A small toolbar appears at the top of the screen.
+2. Click the red record button to start selecting a region.
+3. Drag to select the area you want to record.
+4. Click **Start** to begin recording (after a 3-second countdown).
+5. Use the control bar to pause, resume, or stop.
+6. After stopping, the preview window opens for playback and export.
 
 ## License
 

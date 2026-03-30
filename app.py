@@ -37,9 +37,9 @@ class InstaRecApp(ctk.CTk):
         # Config & State
         self.config = AppConfig.load()
 
-        # Initialize i18n
+        # Initialize i18n (default: English, user can switch via menu)
         if not self.config.language:
-            self.config.language = i18n.get_system_language()
+            self.config.language = "en"
             self.config.save()
         i18n.init(self.config.language)
 
