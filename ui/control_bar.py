@@ -132,14 +132,21 @@ class ControlBar(ctk.CTkToplevel):
         self._drag_x = 0
         self._drag_y = 0
 
-        # Window setup
+        # Window setup — transparent window with rounded frame inside
         self.title(t("control_bar.title"))
         self.overrideredirect(True)
         self.attributes("-topmost", True)
-        self.configure(fg_color=Colors.SURFACE)
+
+        # Make window background transparent so frame corners show
+        _CHROMA = "#010101"
+        self.configure(fg_color=_CHROMA)
+        try:
+            self.attributes("-transparentcolor", _CHROMA)
+        except Exception:
+            pass
 
         try:
-            self.attributes("-alpha", 0.92)
+            self.attributes("-alpha", 0.95)
         except Exception:
             pass
 
@@ -191,7 +198,7 @@ class ControlBar(ctk.CTkToplevel):
         self._frame = ctk.CTkFrame(
             self, fg_color=Colors.SURFACE, corner_radius=_BAR_RADIUS,
         )
-        self._frame.pack(fill="both", expand=True, padx=2, pady=2)
+        self._frame.pack(fill="both", expand=True, padx=4, pady=4)
         self._frame.bind("<Button-1>", self._start_drag)
         self._frame.bind("<B1-Motion>", self._do_drag)
 
@@ -277,16 +284,13 @@ class ControlBar(ctk.CTkToplevel):
             command=self._handle_discard,
         )
 
-        # --- Record button (IDLE) --- ring style with inner dot
-        rec_ring_img = self._make_ring_icon(30, Colors.RED, 12)
+        # --- Record button (IDLE) --- red circle
         self._rec_btn = ctk.CTkButton(
             inner, text="",
-            image=rec_ring_img, compound="center",
-            width=32, height=32, corner_radius=16,
-            fg_color="transparent", hover_color=Colors.SURFACE_HOVER,
+            width=20, height=20, corner_radius=10,
+            fg_color=Colors.RED, hover_color=Colors.RED_HOVER,
             command=self._handle_new,
         )
-        self._rec_ring_img = rec_ring_img
 
         # --- Menu button (IDLE) ---
         self._menu_btn = ctk.CTkButton(
