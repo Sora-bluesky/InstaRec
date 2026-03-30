@@ -3,16 +3,18 @@ from PyInstaller.utils.hooks import collect_all
 
 datas = []
 binaries = []
-# 必要な隠しインポートをすべて定義
-hiddenimports = ['imageio_ffmpeg', 'mss', 'cv2', 'soundcard', 'pyautogui']
+hiddenimports = [
+    'imageio_ffmpeg', 'mss', 'cv2', 'soundcard', 'pyautogui',
+    'ffpyplayer', 'ffpyplayer.player', 'keyboard',
+]
 
-# 各ライブラリのデータを収集
-tmp_ret = collect_all('imageio_ffmpeg')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('customtkinter')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
-tmp_ret = collect_all('soundfile')
-datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
+# i18n data files
+datas += [('i18n/*.json', 'i18n')]
+
+# Collect library data
+for lib in ['imageio_ffmpeg', 'customtkinter', 'soundfile', 'ffpyplayer']:
+    tmp_ret = collect_all(lib)
+    datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 
 a = Analysis(
@@ -49,5 +51,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='icon.ico', # アイコンファイル（もしあれば）
+    icon='icon.ico',
 )
