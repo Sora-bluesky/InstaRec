@@ -137,6 +137,8 @@ class InstaRecApp(ctk.CTk):
         self._control_bar.update_region(region)
         self._control_bar.set_mode("ready")
         self._control_bar.deiconify()
+        self._control_bar.lift()
+        self._control_bar.focus_force()
         logger.info(f"Selection drawn: {region}")
 
     def _on_selection_cancelled(self):

@@ -65,6 +65,7 @@ class SelectionOverlay:
         self._interact_win: Optional[tk.Toplevel] = None
 
         self._destroyed = False
+        self._update_pending = False
 
     def show(self):
         """Show the overlay and enter draw mode (Phase A)."""
@@ -456,8 +457,7 @@ class SelectionOverlay:
         y1, y2 = min(sy, ey), max(sy, ey)
 
         self._selection = {"x1": x1, "y1": y1, "x2": x2, "y2": y2}
-        self._update_dim_panels()
-        self._update_adjust_overlays()
+        self._schedule_visual_update()
 
     def _dim_on_release(self, event):
         if self._drag_mode != "draw":
@@ -556,12 +556,28 @@ class SelectionOverlay:
 
             self._selection = self._normalize_selection(new_sel)
 
+        self._schedule_visual_update()
+
+    def _schedule_visual_update(self):
+        """Throttle visual updates to reduce flicker during drag."""
+        if self._update_pending:
+            return
+        self._update_pending = True
+        self._master.after(16, self._do_visual_update)  # ~60fps cap
+
+    def _do_visual_update(self):
+        self._update_pending = False
+        if self._destroyed:
+            return
         self._update_dim_panels()
         self._update_adjust_overlays()
 
     def _adjust_on_release(self, event):
         self._drag_mode = "none"
         self._drag_sel_start = None
+        # Final update on release
+        self._update_dim_panels()
+        self._update_adjust_overlays()
 
     def _adjust_on_motion(self, event):
         """Update cursor based on hover position."""
