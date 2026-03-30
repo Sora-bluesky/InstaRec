@@ -13,5 +13,16 @@
   "preview.trim": "トリミング",
   "preview.save_as": "名前を付けて保存",
   "preview.saved": "保存しました",
-  "preview.copied": "クリップボードにコピーしました"
+  "preview.copied": "クリップボードにコピーしました",
+  "preview.export_gif": "GIF出力",
+  "gif.title": "GIF出力",
+  "gif.quality": "品質",
+  "gif.quality.low": "低",
+  "gif.quality.medium": "中",
+  "gif.quality.high": "高",
+  "gif.fps": "フレームレート",
+  "gif.estimated_size": "推定サイズ",
+  "gif.exporting": "GIF出力中...",
+  "gif.cancel": "キャンセル",
+  "gif.export": "出力"
 }

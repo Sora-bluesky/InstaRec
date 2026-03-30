@@ -213,6 +213,17 @@ class PreviewWindow(ctk.CTkToplevel):
         actions = ctk.CTkFrame(self, fg_color="transparent", height=40)
         actions.pack(fill="x", padx=16, pady=(4, 12))
 
+        # GIF Export (left side)
+        ctk.CTkButton(
+            actions, text=t("preview.export_gif"),
+            font=(Fonts.FAMILY_JP, 13),
+            width=100, height=32, corner_radius=8,
+            fg_color=Colors.SURFACE_HOVER,
+            hover_color=Colors.SURFACE_PRESSED,
+            text_color=Colors.TEXT_PRIMARY,
+            command=self._handle_gif_export,
+        ).pack(side="left", padx=4)
+
         # Save (primary)
         ctk.CTkButton(
             actions, text=t("preview.save"),
@@ -509,6 +520,11 @@ class PreviewWindow(ctk.CTkToplevel):
             logger.info(f"Recording already saved: {self._video_path}")
 
         self._handle_close()
+
+    def _handle_gif_export(self):
+        """Open GIF export dialog."""
+        from ui.gif_export_dialog import GifExportDialog
+        GifExportDialog(self, self._video_path, self._duration)
 
     def _handle_copy(self):
         """Copy video file path to clipboard."""

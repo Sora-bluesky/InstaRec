@@ -65,6 +65,9 @@ class InstaRecApp(ctk.CTk):
             on_language_change=self._on_language_change,
         )
 
+        # Global hotkey
+        self._setup_hotkey()
+
         logger.info("InstaRec ready (IDLE)")
 
     def _register_state_callbacks(self):
@@ -303,6 +306,28 @@ class InstaRecApp(ctk.CTk):
         )
         logger.info(f"Language changed to: {lang_code}")
 
+    def _setup_hotkey(self):
+        """Register global hotkey for recording."""
+        try:
+            import keyboard
+            hotkey = self.config.hotkey
+            keyboard.add_hotkey(hotkey, self._on_hotkey)
+            logger.info(f"Global hotkey registered: {hotkey}")
+        except Exception as e:
+            logger.warning(f"Failed to register hotkey: {e}")
+
+    def _on_hotkey(self):
+        """Handle global hotkey press (runs on keyboard listener thread)."""
+        # Schedule on main thread via after()
+        self.after(0, self._hotkey_action)
+
+    def _hotkey_action(self):
+        """Execute hotkey action on main thread."""
+        if self.state_machine.is_state(AppState.IDLE):
+            self._on_new()
+        elif self.state_machine.is_state(AppState.RECORDING):
+            self._on_stop()
+
     def _on_new(self):
         """Handle 'New' button click."""
         self.state_machine.transition(AppState.SELECTING)
@@ -310,6 +335,11 @@ class InstaRecApp(ctk.CTk):
     def _on_quit(self):
         """Handle quit request."""
         logger.info("InstaRec shutting down")
+        try:
+            import keyboard
+            keyboard.unhook_all()
+        except Exception:
+            pass
         self.config.save()
         self.toolbar.destroy()
         self.quit()
