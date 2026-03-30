@@ -30,27 +30,27 @@ Windows 11 has a built-in screen recording feature via Snipping Tool, but Window
 - Compact floating toolbar that stays out of the way
 - Settings panel for recording, audio, and behavior preferences
 
-## Requirements
+## Installation
 
-- Windows 10
-- Python 3.10+
-- FFmpeg (bundled via `imageio-ffmpeg`)
+Download the latest installer from [Releases](https://github.com/Sora-bluesky/InstaRec/releases) and run it. No additional software required — Python and FFmpeg are bundled in the installer.
 
-## Quick Start
+### System Requirements
+
+- Windows 10 or later (also works on Windows 11)
+
+### For Developers
 
 ```bash
 pip install -r requirements.txt
 python main.py
 ```
 
-## Build
+To build the standalone executable:
 
 ```bash
 pip install pyinstaller
 pyinstaller InstaRec.spec
 ```
-
-The standalone executable will be created in `dist/InstaRec.exe`.
 
 ## Usage
 
@@ -99,27 +99,27 @@ Windows 11 には Snipping Tool に録画機能が内蔵されていますが、
 - コンパクトなフローティングツールバー
 - 録画、オーディオ、動作の設定パネル
 
-## 必要環境
+## インストール
 
-- Windows 10
-- Python 3.10+
-- FFmpeg（`imageio-ffmpeg` 経由で同梱）
+[Releases](https://github.com/Sora-bluesky/InstaRec/releases) から最新のインストーラーをダウンロードして実行してください。Python や FFmpeg の追加インストールは不要です。
 
-## クイックスタート
+### 動作環境
+
+- Windows 10 以降（Windows 11 でも動作します）
+
+### 開発者向け
 
 ```bash
 pip install -r requirements.txt
 python main.py
 ```
 
-## ビルド
+スタンドアロン実行ファイルのビルド:
 
 ```bash
 pip install pyinstaller
 pyinstaller InstaRec.spec
 ```
-
-`dist/InstaRec.exe` にスタンドアロン実行ファイルが生成されます。
 
 ## 使い方
 
