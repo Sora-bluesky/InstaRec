@@ -5,5 +5,13 @@
   "menu.language": "言語",
   "control_bar.title": "InstaRec Control",
   "control.start": "スタート",
-  "mic.default_device": "既定のマイク"
+  "mic.default_device": "既定のマイク",
+  "preview.title": "InstaRec — プレビュー",
+  "preview.save": "保存",
+  "preview.copy": "コピー",
+  "preview.share": "共有",
+  "preview.trim": "トリミング",
+  "preview.save_as": "名前を付けて保存",
+  "preview.saved": "保存しました",
+  "preview.copied": "クリップボードにコピーしました"
 }

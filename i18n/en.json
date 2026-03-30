@@ -5,5 +5,13 @@
   "menu.language": "Language",
   "control_bar.title": "InstaRec Control",
   "control.start": "Start",
-  "mic.default_device": "Default Microphone"
+  "mic.default_device": "Default Microphone",
+  "preview.title": "InstaRec — Preview",
+  "preview.save": "Save",
+  "preview.copy": "Copy",
+  "preview.share": "Share",
+  "preview.trim": "Trim",
+  "preview.save_as": "Save As",
+  "preview.saved": "Saved",
+  "preview.copied": "Copied to clipboard"
 }
