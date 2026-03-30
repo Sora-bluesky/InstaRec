@@ -2,9 +2,9 @@
 
 **English** | [日本語](#instarec-1)
 
-A lightweight screen recording tool for Windows 10, built with a minimal Apple HIG-inspired UI.
+A lightweight screen recording tool for Windows 10.
 
-Windows 11 has a built-in screen recording feature via Snipping Tool, but Windows 10 does not. InstaRec fills that gap with a simple, focused recording experience.
+Windows 11 has a built-in screen recording feature via Snipping Tool, but Windows 10 does not. InstaRec fills that gap.
 
 ## Features
 
@@ -71,9 +71,9 @@ pyinstaller InstaRec.spec
 
 [English](#instarec) | **日本語**
 
-Windows 10 向けの軽量な画面録画ツール。Apple HIG にインスパイアされたミニマルな UI で設計されています。
+Windows 10 向けの軽量な画面録画ツール。
 
-Windows 11 には Snipping Tool に録画機能が内蔵されていますが、Windows 10 にはありません。InstaRec はそのギャップを、シンプルで集中した録画体験で埋めます。
+Windows 11 には Snipping Tool に録画機能が内蔵されていますが、Windows 10 にはありません。InstaRec はその不足を補います。
 
 ## 機能
 
