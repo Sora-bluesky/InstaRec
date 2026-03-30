@@ -22,9 +22,9 @@ from i18n import t, available_languages, current_language
 
 logger = logging.getLogger(__name__)
 
-_BAR_WIDTH = 360
-_BAR_HEIGHT = 36
-_BAR_RADIUS = 8
+_BAR_WIDTH = 340
+_BAR_HEIGHT = 42
+_BAR_RADIUS = 14  # Moderately rounded — not pill, not sharp
 _ICON_FONT = "Segoe MDL2 Assets"
 _ICON_MIC = "\uE720"
 _ICON_SPEAKER = "\uE767"
@@ -277,16 +277,16 @@ class ControlBar(ctk.CTkToplevel):
             command=self._handle_discard,
         )
 
-        # --- Record button (IDLE) --- red pill for starting new recording
-        rec_idle_dot = self._make_circle_icon(10, "#FFFFFF")
+        # --- Record button (IDLE) --- ring style with inner dot
+        rec_ring_img = self._make_ring_icon(30, Colors.RED, 12)
         self._rec_btn = ctk.CTkButton(
             inner, text="",
-            image=rec_idle_dot, compound="center",
-            width=24, height=24, corner_radius=12,
-            fg_color=Colors.RED, hover_color=Colors.RED_HOVER,
+            image=rec_ring_img, compound="center",
+            width=32, height=32, corner_radius=16,
+            fg_color="transparent", hover_color=Colors.SURFACE_HOVER,
             command=self._handle_new,
         )
-        self._rec_idle_dot = rec_idle_dot
+        self._rec_ring_img = rec_ring_img
 
         # --- Menu button (IDLE) ---
         self._menu_btn = ctk.CTkButton(
@@ -421,6 +421,18 @@ class ControlBar(ctk.CTkToplevel):
     # ------------------------------------------------------------------
     # Helpers
     # ------------------------------------------------------------------
+
+    @staticmethod
+    def _make_ring_icon(size: int, ring_color: str, inner_size: int) -> ctk.CTkImage:
+        """Create a ring icon with inner filled circle (record button style)."""
+        img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        # Outer ring
+        draw.ellipse((0, 0, size - 1, size - 1), outline=ring_color, width=2)
+        # Inner dot
+        pad = (size - inner_size) // 2
+        draw.ellipse((pad, pad, pad + inner_size - 1, pad + inner_size - 1), fill=ring_color)
+        return ctk.CTkImage(light_image=img, dark_image=img, size=(size, size))
 
     @staticmethod
     def _make_circle_icon(size: int, color: str) -> ctk.CTkImage:
