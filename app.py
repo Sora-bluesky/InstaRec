@@ -7,7 +7,6 @@ import customtkinter as ctk
 from state import StateMachine, AppState
 from config import AppConfig
 from core import Recorder
-from ui.main_toolbar import MainToolbar
 from ui.selection_overlay import SelectionOverlay
 from ui.control_bar import ControlBar
 from ui.recording_overlay import CountdownOverlay, RecordingBorder
@@ -31,7 +30,7 @@ class InstaRecApp(ctk.CTk):
 
         ctk.set_appearance_mode("dark")
 
-        # Hide root window - MainToolbar is the visible UI
+        # Hide root window - ControlBar is the visible UI
         self.withdraw()
 
         # Config & State
@@ -58,14 +57,8 @@ class InstaRecApp(ctk.CTk):
         # Register state callbacks
         self._register_state_callbacks()
 
-        # Create main toolbar
-        self.toolbar = MainToolbar(
-            self,
-            on_new=self._on_new,
-            on_quit=self._on_quit,
-            on_language_change=self._on_language_change,
-            on_settings=self._on_settings,
-        )
+        # Create control bar (primary UI)
+        self._control_bar = self._create_control_bar()
 
         # Global hotkey
         self._setup_hotkey()
@@ -84,10 +77,29 @@ class InstaRecApp(ctk.CTk):
         sm.on_enter(AppState.PROCESSING, self._enter_processing)
         sm.on_enter(AppState.PREVIEW, self._enter_preview)
 
+    def _create_control_bar(self, region=None) -> ControlBar:
+        """Create or recreate the control bar."""
+        return ControlBar(
+            master=self,
+            config=self.config,
+            region=region,
+            on_new=self._on_new,
+            on_start=self._on_start,
+            on_stop=self._on_stop,
+            on_pause=self._on_pause,
+            on_resume=self._on_resume,
+            on_discard=self._on_discard,
+            on_mic_toggle=self._on_mic_toggle,
+            on_audio_toggle=self._on_audio_toggle,
+            on_mic_device_change=self._on_mic_device_change,
+            on_quit=self._on_quit,
+            on_settings=self._on_settings,
+            on_language_change=self._on_language_change,
+        )
+
     def _enter_idle(self, old_state, new_state):
-        """Return to idle - show toolbar, cleanup."""
-        for attr in ("_countdown_overlay", "_recording_border",
-                     "_overlay", "_control_bar"):
+        """Return to idle - show control bar, cleanup."""
+        for attr in ("_countdown_overlay", "_recording_border", "_overlay"):
             obj = getattr(self, attr, None)
             if obj:
                 obj.destroy()
@@ -97,15 +109,18 @@ class InstaRecApp(ctk.CTk):
             self._recorder.cleanup()
             self._recorder = None
 
-        self.toolbar.set_enabled(True)
-        self.toolbar.deiconify()
+        # Destroy recording control bar and recreate in idle mode
+        if self._control_bar:
+            self._control_bar.destroy()
+        self._control_bar = self._create_control_bar()
+
         self._selected_region = None
         logger.info("Returned to IDLE")
 
     def _enter_selecting(self, old_state, new_state):
         """Start region selection overlay."""
-        self.toolbar.set_enabled(False)
-        self.toolbar.withdraw()
+        self._control_bar.set_enabled(False)
+        self._control_bar.withdraw()
 
         self._overlay = SelectionOverlay(
             master=self,
@@ -116,23 +131,12 @@ class InstaRecApp(ctk.CTk):
         logger.info("Entering SELECTING")
 
     def _on_selection_drawn(self, region):
-        """Called when user first draws a selection. Show control bar."""
+        """Called when user first draws a selection. Switch to ready mode."""
         self._selected_region = region
-        if not self._control_bar:
-            self._control_bar = ControlBar(
-                master=self,
-                region=region,
-                config=self.config,
-                on_start=self._on_start,
-                on_stop=self._on_stop,
-                on_pause=self._on_pause,
-                on_resume=self._on_resume,
-                on_discard=self._on_discard,
-                on_mic_toggle=self._on_mic_toggle,
-                on_audio_toggle=self._on_audio_toggle,
-                on_mic_device_change=self._on_mic_device_change,
-            )
-        logger.info(f"Selection drawn, control bar shown: {region}")
+        self._control_bar.update_region(region)
+        self._control_bar.set_mode("ready")
+        self._control_bar.deiconify()
+        logger.info(f"Selection drawn: {region}")
 
     def _on_selection_cancelled(self):
         """Called when user presses Escape."""
@@ -294,19 +298,14 @@ class InstaRecApp(ctk.CTk):
         self.state_machine.transition(AppState.IDLE)
 
     def _on_language_change(self, lang_code: str):
-        """Handle language change from toolbar menu."""
+        """Handle language change from control bar menu."""
         self.config.language = lang_code
         self.config.save()
         i18n.init(lang_code)
-        # Rebuild toolbar with new language
-        self.toolbar.destroy()
-        self.toolbar = MainToolbar(
-            self,
-            on_new=self._on_new,
-            on_quit=self._on_quit,
-            on_language_change=self._on_language_change,
-            on_settings=self._on_settings,
-        )
+        # Rebuild control bar with new language
+        if self._control_bar:
+            self._control_bar.destroy()
+        self._control_bar = self._create_control_bar()
         logger.info(f"Language changed to: {lang_code}")
 
     def _on_settings(self):
@@ -360,7 +359,8 @@ class InstaRecApp(ctk.CTk):
         except Exception:
             pass
         self.config.save()
-        self.toolbar.destroy()
+        if self._control_bar:
+            self._control_bar.destroy()
         self.quit()
         sys.exit()
 
