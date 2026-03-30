@@ -13,5 +13,16 @@
   "preview.trim": "Trim",
   "preview.save_as": "Save As",
   "preview.saved": "Saved",
-  "preview.copied": "Copied to clipboard"
+  "preview.copied": "Copied to clipboard",
+  "preview.export_gif": "Export GIF",
+  "gif.title": "Export as GIF",
+  "gif.quality": "Quality",
+  "gif.quality.low": "Low",
+  "gif.quality.medium": "Medium",
+  "gif.quality.high": "High",
+  "gif.fps": "Frame Rate",
+  "gif.estimated_size": "Estimated size",
+  "gif.exporting": "Exporting GIF...",
+  "gif.cancel": "Cancel",
+  "gif.export": "Export"
 }
