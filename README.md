@@ -1,5 +1,7 @@
 # InstaRec
 
+**English** | [日本語](#instarec-1)
+
 A lightweight screen recording tool for Windows 10, built with a minimal Apple HIG-inspired UI.
 
 Windows 11 has a built-in screen recording feature via Snipping Tool, but Windows 10 does not. InstaRec fills that gap with a simple, focused recording experience.
@@ -60,5 +62,74 @@ The standalone executable will be created in `dist/InstaRec.exe`.
 6. After stopping, the preview window opens for playback and export.
 
 ## License
+
+[MIT](LICENSE)
+
+---
+
+# InstaRec
+
+[English](#instarec) | **日本語**
+
+Windows 10 向けの軽量な画面録画ツール。Apple HIG にインスパイアされたミニマルな UI で設計されています。
+
+Windows 11 には Snipping Tool に録画機能が内蔵されていますが、Windows 10 にはありません。InstaRec はそのギャップを、シンプルで集中した録画体験で埋めます。
+
+## 機能
+
+**録画**
+
+- 範囲指定による画面キャプチャ（リサイズ可能な選択エリア）
+- Snipping Tool 風の選択ハンドル（コーナーティックとエッジティック）
+- 録画開始前の 3 秒カウントダウン
+- 一時停止と再開
+- システム音声とマイクのキャプチャ（デバイス選択対応）
+
+**プレビューとエクスポート**
+
+- 再生コントロール付きの動画プレビュー
+- シークバー、音量調整、トリミング（開始/終了）
+- MP4 または GIF でエクスポート（品質とフレームレート設定）
+- 保存、クリップボードにパスをコピー、エクスプローラーで開く
+
+**使いやすさ**
+
+- グローバルホットキー: `Win+Shift+R` で録画開始/停止
+- 英語 / 日本語 UI（ツールバーメニューから切り替え）
+- コンパクトなフローティングツールバー
+- 録画、オーディオ、動作の設定パネル
+
+## 必要環境
+
+- Windows 10
+- Python 3.10+
+- FFmpeg（`imageio-ffmpeg` 経由で同梱）
+
+## クイックスタート
+
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+## ビルド
+
+```bash
+pip install pyinstaller
+pyinstaller InstaRec.spec
+```
+
+`dist/InstaRec.exe` にスタンドアロン実行ファイルが生成されます。
+
+## 使い方
+
+1. InstaRec を起動すると、画面上部に小さなツールバーが表示されます。
+2. 赤い録画ボタンをクリックして範囲選択を開始します。
+3. ドラッグして録画したい範囲を選択します。
+4. **スタート** をクリックすると録画が始まります（3 秒のカウントダウン後）。
+5. コントロールバーで一時停止、再開、停止ができます。
+6. 停止後、プレビューウィンドウが開き、再生やエクスポートができます。
+
+## ライセンス
 
 [MIT](LICENSE)
