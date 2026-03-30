@@ -1,13 +1,13 @@
 [Setup]
 AppName=InstaRec
-AppVersion=0.2.0
+AppVersion=0.2.1
 AppPublisher=Sora
 AppPublisherURL=https://github.com/Sora-bluesky/InstaRec
 DefaultDirName={autopf}\InstaRec
 DefaultGroupName=InstaRec
 UninstallDisplayIcon={app}\InstaRec.exe
 OutputDir=dist
-OutputBaseFilename=InstaRec-Setup-0.2.0
+OutputBaseFilename=InstaRec-Setup-0.2.1
 Compression=lzma2
 SolidCompression=yes
 SetupIconFile=icon.ico
@@ -15,6 +15,8 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 WizardStyle=modern
 PrivilegesRequired=lowest
+CloseApplications=force
+CloseApplicationsFilter=InstaRec.exe
 
 [Files]
 Source: "dist\InstaRec.exe"; DestDir: "{app}"; Flags: ignoreversion
