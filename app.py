@@ -1,5 +1,6 @@
 """InstaRecApp - Top-level application controller."""
 
+import os
 import sys
 import logging
 import customtkinter as ctk
@@ -10,6 +11,7 @@ from ui.main_toolbar import MainToolbar
 from ui.selection_overlay import SelectionOverlay
 from ui.control_bar import ControlBar
 from ui.recording_overlay import CountdownOverlay, RecordingBorder
+from ui.preview_window import PreviewWindow
 from utils.logger import setup_logging
 import i18n
 
@@ -49,6 +51,7 @@ class InstaRecApp(ctk.CTk):
         self._countdown_overlay = None
         self._recording_border = None
         self._recorder: Recorder | None = None
+        self._preview_window: PreviewWindow | None = None
         self._mic_device_id: str | None = None
 
         # Register state callbacks
@@ -265,14 +268,25 @@ class InstaRecApp(ctk.CTk):
             self._last_output_path = output_path
         else:
             logger.error("Recording finalization failed")
-        # Phase 6 will use PREVIEW state; for now transition through to IDLE
         self.state_machine.transition(AppState.PREVIEW)
 
     def _enter_preview(self, old_state, new_state):
-        """Preview state - Phase 6 will show preview window here."""
-        # For now, transition to IDLE immediately
-        logger.info("PREVIEW (placeholder - Phase 6)")
-        self.after(100, lambda: self.state_machine.transition(AppState.IDLE))
+        """Show preview window with recorded video."""
+        path = getattr(self, "_last_output_path", None)
+        if path and os.path.exists(path):
+            self._preview_window = PreviewWindow(
+                master=self,
+                video_path=path,
+                on_close=self._on_preview_close,
+            )
+        else:
+            logger.error("No video file for preview")
+            self.state_machine.transition(AppState.IDLE)
+
+    def _on_preview_close(self):
+        """Called when preview window is closed."""
+        self._preview_window = None
+        self.state_machine.transition(AppState.IDLE)
 
     def _on_language_change(self, lang_code: str):
         """Handle language change from toolbar menu."""
