@@ -544,6 +544,16 @@ class SelectionOverlay:
             if edges[1]:
                 new_sel[edges[1]] = ss[edges[1]] + dy
 
+            # Clamp to screen bounds
+            scr = self._screen
+            sl, st = scr["left"], scr["top"]
+            sr = sl + scr["width"]
+            sb = st + scr["height"]
+            for key in ("x1", "x2"):
+                new_sel[key] = max(sl, min(new_sel[key], sr))
+            for key in ("y1", "y2"):
+                new_sel[key] = max(st, min(new_sel[key], sb))
+
             self._selection = self._normalize_selection(new_sel)
 
         self._update_dim_panels()

@@ -123,7 +123,7 @@ class MainToolbar(ctk.CTkToplevel):
                             activebackground="#3A3A3A", activeforeground="white",
                             relief="flat", borderwidth=0)
         for code, name in langs.items():
-            prefix = "  " if code != cur else "  "
+            prefix = "\u2713 " if code == cur else "    "
             lang_menu.add_command(
                 label=prefix + name,
                 command=lambda c=code: self._change_language(c),

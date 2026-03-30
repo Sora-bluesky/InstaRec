@@ -259,6 +259,9 @@ class GifExportDialog(ctk.CTkToplevel):
 
             self.after(0, lambda: self._on_export_done(True))
 
+        except subprocess.TimeoutExpired:
+            logger.error("GIF export timed out")
+            self.after(0, lambda: self._on_export_done(False))
         except Exception as e:
             logger.error(f"GIF export error: {e}")
             self.after(0, lambda: self._on_export_done(False))

@@ -69,6 +69,9 @@ class Recorder:
         logger.info("Recorder paused")
 
     def resume(self):
+        if not self._seg_mgr:
+            logger.warning("Cannot resume: no segment manager")
+            return
         self._start_segment()
         logger.info("Recorder resumed")
 
@@ -78,6 +81,10 @@ class Recorder:
         on_complete(output_path) is called on the main thread.
         output_path is None on failure.
         """
+        if not self._seg_mgr:
+            logger.warning("Stop called but no segments exist")
+            self._schedule(on_complete, None)
+            return
         self._stop_segment()
         thread = threading.Thread(
             target=self._finalize,

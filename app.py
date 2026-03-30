@@ -310,9 +310,20 @@ class InstaRecApp(ctk.CTk):
         logger.info(f"Language changed to: {lang_code}")
 
     def _on_settings(self):
-        """Open settings window."""
-        if self.state_machine.is_state(AppState.IDLE):
-            SettingsWindow(self, self.config)
+        """Open settings window (single instance)."""
+        if not self.state_machine.is_state(AppState.IDLE):
+            return
+        # Prevent multiple settings windows
+        if hasattr(self, "_settings_window") and self._settings_window:
+            try:
+                self._settings_window.focus_force()
+                return
+            except Exception:
+                pass
+        self._settings_window = SettingsWindow(
+            self, self.config,
+            on_close=lambda: setattr(self, "_settings_window", None),
+        )
 
     def _setup_hotkey(self):
         """Register global hotkey for recording."""
