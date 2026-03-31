@@ -66,6 +66,12 @@ class SelectionOverlay:
 
         self._destroyed = False
         self._update_pending = False
+        self._dragging = False
+        self._bar_win = None  # ControlBar reference for z-order
+
+    def set_bar_window(self, win):
+        """Register the control bar window for z-order management."""
+        self._bar_win = win
 
     def show(self):
         """Show the overlay and enter draw mode (Phase A)."""
@@ -447,6 +453,7 @@ class SelectionOverlay:
         """Click on dim panel = start drawing a new selection."""
         self._drag_mode = "draw"
         self._drag_start = (event.x_root, event.y_root)
+        self._dragging = True
 
     def _dim_on_drag(self, event):
         if self._drag_mode != "draw":
@@ -464,11 +471,13 @@ class SelectionOverlay:
         if self._drag_mode != "draw":
             return
         self._drag_mode = "none"
+        self._dragging = False
 
         s = self._selection
         if s and (s["x2"] - s["x1"]) >= MIN_SELECTION_SIZE and \
                 (s["y2"] - s["y1"]) >= MIN_SELECTION_SIZE:
             logger.info(f"Selection redrawn: {self._selection}")
+            self._update_dim_panels()
         else:
             self._selection = None
 
@@ -504,6 +513,7 @@ class SelectionOverlay:
         self._drag_mode = mode
         self._drag_start = (mx, my)
         self._drag_sel_start = dict(self._selection) if self._selection else None
+        self._dragging = True
 
     def _adjust_on_drag(self, event):
         if self._drag_mode == "none" or self._drag_sel_start is None:
@@ -570,13 +580,15 @@ class SelectionOverlay:
         self._update_pending = False
         if self._destroyed:
             return
-        self._update_dim_panels()
+        if not self._dragging:
+            self._update_dim_panels()
         self._update_adjust_overlays()
 
     def _adjust_on_release(self, event):
         self._drag_mode = "none"
         self._drag_sel_start = None
-        # Final update on release
+        self._dragging = False
+        # Final update on release (includes dim panels)
         self._update_dim_panels()
         self._update_adjust_overlays()
 
@@ -617,12 +629,14 @@ class SelectionOverlay:
     # ------------------------------------------------------------------
 
     def _ensure_z_order(self):
-        """Keep border and interact windows above dim panels."""
+        """Keep border and interact above dim panels, bar above all."""
         try:
             if self._border_win:
                 self._border_win.lift()
             if self._interact_win:
                 self._interact_win.lift()
+            if self._bar_win:
+                self._bar_win.lift()
         except Exception:
             pass
 

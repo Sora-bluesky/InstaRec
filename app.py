@@ -137,8 +137,10 @@ class InstaRecApp(ctk.CTk):
         self._control_bar.update_region(region)
         self._control_bar.set_mode("ready")
         self._control_bar.deiconify()
-        # Delay lift to ensure bar is above all overlay windows
-        self._control_bar.after(50, self._ensure_bar_on_top)
+        # Register bar with overlay so _ensure_z_order keeps bar on top
+        if self._overlay:
+            self._overlay.set_bar_window(self._control_bar)
+        self._ensure_bar_on_top()
         logger.info(f"Selection drawn: {region}")
 
     def _ensure_bar_on_top(self):
