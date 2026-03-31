@@ -35,10 +35,14 @@ HANDOFF.md
 CLAUDE.md
 .claude/
 
+# Build outputs
+installer_output/
+
 # Temp files
 temp_video.avi
 temp_audio.wav
 *.tmp
+frame_*.png
 
 # Logs
 *.log
