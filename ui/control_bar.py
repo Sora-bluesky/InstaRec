@@ -22,9 +22,14 @@ from i18n import t, available_languages, current_language
 
 logger = logging.getLogger(__name__)
 
-_BAR_WIDTH = 340
 _BAR_HEIGHT = 42
-_BAR_RADIUS = 8  # Subtle rounded corners
+_BAR_RADIUS = 2  # Nearly square corners
+_BAR_WIDTHS = {
+    "idle": 200,
+    "ready": 340,
+    "recording": 280,
+    "paused": 280,
+}
 _ICON_FONT = "Segoe MDL2 Assets"
 _ICON_MIC = "\uE720"
 _ICON_SPEAKER = "\uE767"
@@ -170,7 +175,7 @@ class ControlBar(ctk.CTkToplevel):
     def _position_bar(self):
         """Position the bar. If no region, center at top of screen."""
         r = self._region
-        bar_w = _BAR_WIDTH
+        bar_w = _BAR_WIDTHS.get(self._mode, 280)
         bar_h = _BAR_HEIGHT
 
         if r is None:
@@ -374,6 +379,9 @@ class ControlBar(ctk.CTkToplevel):
             self._timer.pause()
             self._stop_tick()
             self._start_blink()
+
+        # Resize bar to fit current mode
+        self._position_bar()
 
     # ------------------------------------------------------------------
     # Timer tick / blink
