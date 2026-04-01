@@ -141,6 +141,8 @@ class InstaRecApp(ctk.CTk):
         if self._overlay:
             self._overlay.set_bar_window(self._control_bar)
         self._ensure_bar_on_top()
+        # Reinforce after windows are fully realized by the WM
+        self._control_bar.after(100, self._ensure_bar_on_top)
         logger.info(f"Selection drawn: {region}")
 
     def _ensure_bar_on_top(self):
@@ -244,6 +246,9 @@ class InstaRecApp(ctk.CTk):
         self.state_machine.transition(AppState.COUNTDOWN)
 
     def _on_stop(self):
+        if not self.state_machine.is_state(AppState.RECORDING) and \
+           not self.state_machine.is_state(AppState.PAUSED):
+            return
         self.state_machine.transition(AppState.PROCESSING)
 
     def _on_pause(self):
@@ -278,6 +283,11 @@ class InstaRecApp(ctk.CTk):
 
     def _enter_processing(self, old_state, new_state):
         """Stop recording and finalize output."""
+        if self._recording_border:
+            self._recording_border.destroy()
+            self._recording_border = None
+        if self._control_bar:
+            self._control_bar.withdraw()
         if self._recorder:
             self._recorder.stop(on_complete=self._on_finalize_complete)
         else:

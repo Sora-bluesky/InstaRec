@@ -59,6 +59,9 @@ class Recorder:
         self._mic_device_id = device_id
 
     def start(self):
+        # H.264 (yuv420p) requires even width and height
+        self._region["w"] &= ~1
+        self._region["h"] &= ~1
         self._session = TempSession()
         self._seg_mgr = SegmentManager(self._session.temp_dir)
         self._start_segment()

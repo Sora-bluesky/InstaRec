@@ -363,9 +363,14 @@ class PreviewWindow(ctk.CTkToplevel):
         """Convert ffpyplayer frame → PIL → Canvas."""
         try:
             w, h = image_data.get_size()
+            fmt = image_data.get_pixel_format()
+            if fmt != "rgb24":
+                from ffpyplayer.pic import SWScale
+                sws = SWScale(w, h, fmt, ofmt="rgb24")
+                image_data = sws.scale(image_data)
             raw = image_data.to_bytearray()[0]
             pil_img = Image.frombuffer(
-                "RGB", (w, h), bytes(raw), "raw", "rgb24", 0, 1,
+                "RGB", (w, h), bytes(raw), "raw", "RGB", 0, 1,
             )
 
             cw = self._canvas.winfo_width()
