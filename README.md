@@ -21,7 +21,7 @@ Windows 11 has a built-in screen recording feature via Snipping Tool, but Window
 - Built-in video preview with playback controls
 - Seek bar, volume control, and trim (start/end)
 - Export as MP4 or GIF (with quality and frame rate options)
-- Save, copy path to clipboard, or open in Explorer
+- Save, copy video file to clipboard, or open folder in Explorer
 
 **Usability**
 
@@ -94,7 +94,7 @@ Windows 11 には Snipping Tool に録画機能が内蔵されていますが、
 - 再生コントロール付きの動画プレビュー
 - シークバー、音量調整、トリミング（開始/終了）
 - MP4 または GIF でエクスポート（品質とフレームレート設定）
-- 保存、クリップボードにパスをコピー、エクスプローラーで開く
+- 保存、動画ファイルをクリップボードにコピー、フォルダをエクスプローラーで開く
 
 **使いやすさ**
 

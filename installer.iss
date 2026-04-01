@@ -1,6 +1,6 @@
 [Setup]
 AppName=InstaRec
-AppVersion=0.4.0
+AppVersion=0.4.1
 AppPublisher=Sora
 AppPublisherURL=https://github.com/Sora-bluesky/InstaRec
 DefaultDirName={autopf}\InstaRec
