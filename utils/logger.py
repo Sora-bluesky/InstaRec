@@ -12,7 +12,7 @@ def setup_logging(level: int = logging.INFO):
     """Configure logging with file rotation and console output."""
     os.makedirs(LOG_DIR, exist_ok=True)
 
-    root_logger = logging.getLogger("instarec")
+    root_logger = logging.getLogger()
     root_logger.setLevel(level)
 
     # Avoid adding handlers multiple times
