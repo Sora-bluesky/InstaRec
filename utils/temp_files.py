@@ -27,11 +27,11 @@ class TempSession:
         self.output_path = os.path.join(self._temp_dir, "output.mp4")
         # Register cleanup in case of abnormal exit
         atexit.register(self.cleanup)
+        logger.info(f"Temp session created: {self._temp_dir}")
 
     @property
     def temp_dir(self) -> str:
         return self._temp_dir
-        logger.info(f"Temp session created: {self._temp_dir}")
 
     def cleanup(self):
         """Remove all temporary files."""
