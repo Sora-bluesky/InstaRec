@@ -559,9 +559,11 @@ class PreviewWindow(ctk.CTkToplevel):
         self._handle_close()
 
     def _handle_gif_export(self):
-        """Open GIF export dialog."""
+        """Open GIF export dialog, then close preview."""
         from ui.gif_export_dialog import GifExportDialog
+        self.withdraw()
         GifExportDialog(self, self._video_path, self._duration)
+        self._handle_close()
 
     def _handle_copy(self):
         """Copy video file to clipboard so it can be pasted in Explorer."""
