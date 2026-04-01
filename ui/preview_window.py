@@ -515,9 +515,21 @@ class PreviewWindow(ctk.CTkToplevel):
     # ----------------------------------------------------------
 
     def _handle_save(self):
-        """Save (or Save As with trim) using ffmpeg stream copy."""
+        """Always show Save As dialog. Trim with ffmpeg or plain copy."""
+        import shutil
         from tkinter import filedialog
         from core.ffmpeg_utils import get_ffmpeg
+
+        # Hide preview so file dialog is fully visible
+        self.withdraw()
+        out = filedialog.asksaveasfilename(
+            title=t("preview.save_as"),
+            defaultextension=".mp4",
+            filetypes=[("MP4", "*.mp4")],
+        )
+        if not out:
+            self.deiconify()
+            return
 
         has_trim = (
             self._trim_start > 0.5 or
@@ -525,13 +537,6 @@ class PreviewWindow(ctk.CTkToplevel):
         )
 
         if has_trim:
-            out = filedialog.asksaveasfilename(
-                title=t("preview.save_as"),
-                defaultextension=".mp4",
-                filetypes=[("MP4", "*.mp4")],
-            )
-            if not out:
-                return
             cmd = [
                 get_ffmpeg(), "-y",
                 "-ss", str(self._trim_start),
@@ -543,12 +548,13 @@ class PreviewWindow(ctk.CTkToplevel):
             def _run_trim():
                 try:
                     subprocess.run(cmd, capture_output=True, timeout=120)
+                    logger.info(f"Trimmed video saved: {out}")
                 except Exception as e:
                     logger.error(f"Trim export failed: {e}")
             threading.Thread(target=_run_trim, daemon=True).start()
         else:
-            # No trim — file already saved at _video_path
-            logger.info(f"Recording already saved: {self._video_path}")
+            shutil.copy2(self._video_path, out)
+            logger.info(f"Video saved: {out}")
 
         self._handle_close()
 
@@ -558,14 +564,28 @@ class PreviewWindow(ctk.CTkToplevel):
         GifExportDialog(self, self._video_path, self._duration)
 
     def _handle_copy(self):
-        """Copy video file path to clipboard."""
-        self.clipboard_clear()
-        self.clipboard_append(self._video_path)
+        """Copy video file to clipboard so it can be pasted in Explorer."""
+        filepath = os.path.abspath(self._video_path)
+        ps_script = (
+            "Add-Type -AssemblyName System.Windows.Forms;"
+            "$f=[System.Collections.Specialized.StringCollection]::new();"
+            f"$f.Add('{filepath}');"
+            "[System.Windows.Forms.Clipboard]::SetFileDropList($f)"
+        )
+        try:
+            subprocess.run(
+                ["powershell", "-NoProfile", "-Command", ps_script],
+                capture_output=True, timeout=10,
+            )
+            logger.info(f"Video file copied to clipboard: {filepath}")
+        except Exception as e:
+            logger.error(f"Clipboard copy failed: {e}")
 
     def _handle_share(self):
-        """Open containing folder in Explorer."""
+        """Open containing folder in Explorer, then close preview."""
         folder = os.path.dirname(self._video_path)
         os.startfile(folder)
+        self._handle_close()
 
     # ----------------------------------------------------------
     # Drag & Cleanup
@@ -586,9 +606,13 @@ class PreviewWindow(ctk.CTkToplevel):
         if self._poll_id:
             self.after_cancel(self._poll_id)
             self._poll_id = None
-        if self._player:
-            self._player.close_player()
-            self._player = None
+        self._playing = False
+        # Hide window immediately, then cleanup player in background
+        self.withdraw()
+        player = self._player
+        self._player = None
+        if player:
+            threading.Thread(target=player.close_player, daemon=True).start()
         if self._on_close:
             self._on_close()
         self.destroy()
