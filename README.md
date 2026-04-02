@@ -32,6 +32,14 @@ Windows 11 has a built-in screen recording feature via Snipping Tool, but Window
 
 ## Installation
 
+### winget (recommended)
+
+```powershell
+winget install Sora-bluesky.InstaRec
+```
+
+### Installer
+
 Download the latest installer from [Releases](https://github.com/Sora-bluesky/InstaRec/releases) and run it. No additional software required — Python and FFmpeg are bundled in the installer.
 
 ### System Requirements
@@ -63,7 +71,11 @@ pyinstaller InstaRec.spec
 
 ## Update
 
-Download the latest installer from [Releases](https://github.com/Sora-bluesky/InstaRec/releases) and run it. The installer will automatically replace the previous version. Your settings are preserved.
+```powershell
+winget upgrade Sora-bluesky.InstaRec
+```
+
+Or download the latest installer from [Releases](https://github.com/Sora-bluesky/InstaRec/releases) and run it. The installer will automatically replace the previous version. Your settings are preserved.
 
 ## License
 
