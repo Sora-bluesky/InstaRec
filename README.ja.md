@@ -32,6 +32,14 @@ Windows 11 には Snipping Tool に録画機能が内蔵されていますが、
 
 ## インストール
 
+### winget（推奨）
+
+```powershell
+winget install Sora-bluesky.InstaRec
+```
+
+### インストーラー
+
 [Releases](https://github.com/Sora-bluesky/InstaRec/releases) から最新のインストーラーをダウンロードして実行してください。Python や FFmpeg の追加インストールは不要です。
 
 ### 動作環境
@@ -63,7 +71,11 @@ pyinstaller InstaRec.spec
 
 ## アップデート
 
-[Releases](https://github.com/Sora-bluesky/InstaRec/releases) から最新のインストーラーをダウンロードして実行してください。前のバージョンは自動的に置き換えられます。設定は保持されます。
+```powershell
+winget upgrade Sora-bluesky.InstaRec
+```
+
+または [Releases](https://github.com/Sora-bluesky/InstaRec/releases) から最新のインストーラーをダウンロードして実行してください。前のバージョンは自動的に置き換えられます。設定は保持されます。
 
 ## ライセンス
 
